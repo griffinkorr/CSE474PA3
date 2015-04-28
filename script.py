@@ -2,6 +2,9 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import sqrt
+from math import log
+import operator
+from sklearn.svm import SVC
 
 def preprocess():
     """ 
@@ -115,11 +118,25 @@ def blrObjFunction(params, *args):
     error = 0;
     error_grad = np.zeros((n_feature+1,1));
     
-    ##################
-    # YOUR CODE HERE #
-    ##################
+    bias = np.zeros(1)
+    bias[0] = 1
+
+    sum_error = 0    
+    for n in range(n_data):
+        train_stacked = np.hstack((bias,train_data[n]))        
+        train_stacked = np.reshape(train_stacked,(train_stacked.shape[0],1))
+        yn = sigmoid(initialWeights.T.dot(train_stacked))
+        
+        sum_error = sum_error + (labeli[n] * log(yn) + (1 - labeli[n]) * log(1 - yn))
+        
+        error_grad = error_grad + ((yn -labeli[n])*(train_stacked))
+
+    error = sum_error * -1        
+    print(error)    
+    #print(np.ndarray.flatten(error_grad))
+    #print(error_grad)
     
-    return error, error_grad
+    return error, np.ndarray.flatten(error_grad)
 
 def blrPredict(W, data):
     """
@@ -193,4 +210,6 @@ print('\n\n--------------SVM-------------------\n\n')
 ##################
 # YOUR CODE HERE #
 ##################
+clf = SVC()
+#clf.fit(train_data, train_label)
 
